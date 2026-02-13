@@ -36,7 +36,9 @@ ALLOWED_HOSTS = [
 ]
 # Override with environment variable if provided
 if env_allowed := config('ALLOWED_HOSTS', default=None):
-    ALLOWED_HOSTS = env_allowed.split(',')
+    hosts = env_allowed.split(',')
+    # Strip https:// or http:// if present
+    ALLOWED_HOSTS = [h.replace('https://', '').replace('http://', '').strip() for h in hosts]
 
 
 # Application definition
