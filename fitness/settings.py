@@ -27,7 +27,16 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-8*2kzs3eqcm3yqk79thmy
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
+# Allow all Render domains and localhost for development
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '*.onrender.com',
+    'tracker-system-xexs.onrender.com',
+]
+# Override with environment variable if provided
+if env_allowed := config('ALLOWED_HOSTS', default=None):
+    ALLOWED_HOSTS = env_allowed.split(',')
 
 
 # Application definition
@@ -134,7 +143,14 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Trusted Origins for CSRF
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='http://localhost:8000', cast=Csv())
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'https://tracker-system-xexs.onrender.com',
+    'https://*.onrender.com',
+]
+# Override with environment variable if provided
+if csrf_origins := config('CSRF_TRUSTED_ORIGINS', default=None):
+    CSRF_TRUSTED_ORIGINS = csrf_origins.split(',')
 
 # Security Settings for Production
 if not DEBUG:
