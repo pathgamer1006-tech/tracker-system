@@ -1,0 +1,7 @@
+{% extends 'fitnesstrack/base.html' %}
+
+{% block content %}
+<h1>Fitness Items</h1>
+<a href="{% url 'fit_form' %}" class="btn btn-success mb-3">Add Fitness Item</a>
+{% include 'fitnesstrack/organisms/fit_table.html' %}
+{% endblock %}

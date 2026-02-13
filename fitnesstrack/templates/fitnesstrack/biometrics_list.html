@@ -1,0 +1,81 @@
+{% extends "fitnesstrack/base_new.html" %}
+
+{% block title %}Biometrics - Fitness Tracker{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-4xl font-bold text-text-dark mb-2">Biometrics History</h1>
+            <p class="text-text-light">Track your body measurements over time</p>
+        </div>
+        <a href="{% url 'update_biometrics' %}" class="px-6 py-3 bg-brand-purple text-white rounded-full font-semibold hover:bg-brand-purple/90 transition-colors flex items-center gap-2">
+            + Log New Entry
+        </a>
+    </div>
+    
+    {% if biometrics %}
+    <div style="background: white; border-radius: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; overflow: hidden;">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-200">
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-text-dark">Date</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-text-dark">Weight (kg)</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-text-dark">Body Fat %</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-text-dark">Muscle Mass (kg)</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-text-dark">Waist (cm)</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-text-dark">BMI</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-text-dark">Notes</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for entry in biometrics %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 text-sm text-text-dark">{{ entry.date_recorded|date:"M d, Y" }}</td>
+                        <td class="px-6 py-4 text-sm font-bold text-text-dark">{{ entry.weight_kg }}</td>
+                        <td class="px-6 py-4 text-sm text-text-dark">{{ entry.body_fat_percentage|default:"--" }}</td>
+                        <td class="px-6 py-4 text-sm text-text-dark">{{ entry.muscle_mass_kg|default:"--" }}</td>
+                        <td class="px-6 py-4 text-sm text-text-dark">{{ entry.waist_circumference_cm|default:"--" }}</td>
+                        <td class="px-6 py-4 text-sm text-text-dark">{{ entry.bmi|default:"--" }}</td>
+                        <td class="px-6 py-4 text-sm text-text-light">{{ entry.notes|truncatewords:5|default:"--" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if is_paginated %}
+        <div class="flex items-center justify-center gap-2 px-6 py-4 border-t border-gray-200">
+            {% if page_obj.has_previous %}
+                <a href="?page=1" class="px-4 py-2 bg-brand-purple text-white rounded-full text-sm font-semibold hover:bg-brand-purple/90 transition-colors">First</a>
+                <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 bg-brand-purple text-white rounded-full text-sm font-semibold hover:bg-brand-purple/90 transition-colors">Previous</a>
+            {% endif %}
+            
+            <span class="px-4 py-2 text-sm text-text-dark font-semibold">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 bg-brand-purple text-white rounded-full text-sm font-semibold hover:bg-brand-purple/90 transition-colors">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="px-4 py-2 bg-brand-purple text-white rounded-full text-sm font-semibold hover:bg-brand-purple/90 transition-colors">Last</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="bg-white rounded-3xl p-16 text-center shadow-sm">
+        <div class="text-8xl mb-6">📊</div>
+        <h3 class="text-2xl font-bold text-text-dark mb-4">No biometrics data logged yet</h3>
+        <p class="text-text-light mb-6">Start tracking your body measurements to monitor your progress</p>
+        <a href="{% url 'update_biometrics' %}" class="px-8 py-4 bg-brand-purple text-white rounded-full font-semibold hover:bg-brand-purple/90 transition-colors inline-block">Log Your First Entry</a>
+    </div>
+    {% endif %}
+    
+    <div class="mt-6 flex justify-center">
+        <a href="{% url 'dashboard' %}" class="px-6 py-3 bg-gray-200 text-text-dark rounded-full font-semibold hover:bg-gray-300 transition-colors">← Back to Dashboard</a>
+    </div>
+</div>
+
+{% endblock %}

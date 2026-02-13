@@ -1,0 +1,11 @@
+{% extends 'fitnesstrack/base.html' %}
+
+{% block content %}
+<h1>Confirm Delete</h1>
+<p>Are you sure you want to delete "{{ item.name }}"?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a href="{% url 'fit_list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

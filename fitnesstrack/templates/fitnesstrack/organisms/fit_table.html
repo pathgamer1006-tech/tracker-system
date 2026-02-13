@@ -1,0 +1,28 @@
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in fitness_items %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.category }}</td>
+            <td>
+                <a href="{% url 'fit_form' pk=item.pk %}" class="btn btn-primary btn-sm">Edit</a>
+                <a href="{% url 'fit_detail' pk=item.pk %}" class="btn btn-info btn-sm">View</a>
+                <a href="{% url 'fit_confirm_delete' pk=item.pk %}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No fitness items found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

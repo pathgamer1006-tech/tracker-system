@@ -1,0 +1,311 @@
+{% extends "fitnesstrack/base_new.html" %}
+
+{% block title %}Analytics - Fitness Tracker{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-text-dark mb-2">📊 Progress Visualization</h1>
+        <p class="text-text-light">Track your fitness journey with detailed analytics</p>
+    </div>
+    
+    {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+                <div class="p-4 rounded-2xl mb-3 {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% elif message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% elif message.tags == 'warning' %}bg-yellow-50 text-yellow-800 border border-yellow-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <!-- Statistics Summary -->
+    {% if stats %}
+    <div style="margin-bottom: 28px;">
+        <div style="min-width: 0; overflow: hidden;">
+            <div style="background: white; border-radius: 20px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; overflow: hidden;">
+                <h2 style="font-size: 20px; font-weight: 700; color: #1F2937; margin-bottom: 20px;">Overall Statistics</h2>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                    <div style="text-align: center; padding: 20px 16px; background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(99,102,241,0.03)); border-radius: 16px; border: 1px solid rgba(99,102,241,0.15); min-width: 0;">
+                        <div style="font-size: 28px; font-weight: 700; color: #6366F1; margin-bottom: 4px;">{{ stats.total_activities }}</div>
+                        <div style="font-size: 13px; color: #9CA3AF;">Total Workouts</div>
+                    </div>
+                    <div style="text-align: center; padding: 20px 16px; background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(249,115,22,0.03)); border-radius: 16px; border: 1px solid rgba(249,115,22,0.15); min-width: 0;">
+                        <div style="font-size: 28px; font-weight: 700; color: #F97316; margin-bottom: 4px;">{{ stats.total_calories }}</div>
+                        <div style="font-size: 13px; color: #9CA3AF;">Total Calories Burned</div>
+                    </div>
+                    <div style="text-align: center; padding: 20px 16px; background: linear-gradient(135deg, rgba(14,165,233,0.08), rgba(14,165,233,0.03)); border-radius: 16px; border: 1px solid rgba(14,165,233,0.15); min-width: 0;">
+                        <div style="font-size: 28px; font-weight: 700; color: #0EA5E9; margin-bottom: 4px;">{{ stats.total_duration }}</div>
+                        <div style="font-size: 13px; color: #9CA3AF;">Total Minutes</div>
+                    </div>
+                    <div style="text-align: center; padding: 20px 16px; background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.03)); border-radius: 16px; border: 1px solid rgba(34,197,94,0.15); min-width: 0;">
+                        <div style="font-size: 28px; font-weight: 700; color: #16a34a; margin-bottom: 4px;">{{ stats.week_calories }}</div>
+                        <div style="font-size: 13px; color: #9CA3AF;">This Week's Calories</div>
+                    </div>
+                    {% if stats.weight_change %}
+                    <div class="text-center p-4 bg-gradient-to-br {% if stats.weight_change < 0 %}from-green-500/10 to-green-500/5{% else %}from-red-500/10 to-red-500/5{% endif %} rounded-2xl" style="grid-column: 1 / -1; min-width: 0; border: 1px solid {% if stats.weight_change < 0 %}rgba(34,197,94,0.15){% else %}rgba(239,68,68,0.15){% endif %};">
+                        <div class="text-3xl font-bold {% if stats.weight_change < 0 %}text-green-600{% else %}text-red-600{% endif %} mb-1">
+                            {{ stats.weight_change|floatformat:1 }} kg
+                        </div>
+                        <div class="text-sm text-text-light">Weight Change (30 Days)</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Weight Trend Chart -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 28px;">
+        <div style="min-width: 0; overflow: hidden;">
+            <div style="background: white; border-radius: 20px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; overflow: hidden;">
+                <h2 class="text-2xl font-bold text-text-dark mb-2">📈 Weight Trend (Last 30 Days)</h2>
+                <p class="text-text-light text-sm mb-4">Track your weight changes over time. Each point represents a biometrics log entry.</p>
+                <div class="h-80">
+                    <canvas id="weightChart"></canvas>
+                </div>
+                <div class="mt-4 text-center">
+                    {% if weight_chart_data %}
+                        <p class="text-sm text-text-light">📊 Showing data from the last 30 days</p>
+                    {% else %}
+                        <p class="text-text-light">No weight data available. <a href="{% url 'update_biometrics' %}" class="text-brand-purple hover:text-brand-purple/80 font-semibold">Log your weight</a> to see trends!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    
+        <!-- Activity Breakdown Chart -->
+        <div style="min-width: 0; overflow: hidden;">
+            <div style="background: white; border-radius: 20px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; overflow: hidden; height: 100%;">
+                <h2 class="text-2xl font-bold text-text-dark mb-2">🥧 Activity Types</h2>
+                <p class="text-text-light text-sm mb-4">Your workout distribution</p>
+                <div class="h-64">
+                    <canvas id="activityChart"></canvas>
+                </div>
+                <div class="mt-4 text-center">
+                    {% if activity_chart_data %}
+                        <p class="text-sm text-text-light">📊 All logged activities</p>
+                    {% else %}
+                        <p class="text-text-light text-sm">No activities yet. <a href="{% url 'log_activity' %}" class="text-brand-purple hover:text-brand-purple/80 font-semibold">Log one now!</a></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Calories Burned Trend -->
+    <div style="margin-bottom: 28px;">
+        <div style="min-width: 0; overflow: hidden;">
+            <div style="background: white; border-radius: 20px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; overflow: hidden;">
+                <h2 class="text-2xl font-bold text-text-dark mb-2">🔥 Daily Calories Burned (Last 7 Days)</h2>
+                <p class="text-text-light text-sm mb-4">Track your daily calorie burn over the past week</p>
+                <div class="h-80">
+                    <canvas id="caloriesChart"></canvas>
+                </div>
+                <div class="mt-4 text-center">
+                    <p class="text-sm text-text-light">📊 Daily calorie burn from all activities</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="flex gap-4 justify-center">
+        <a href="{% url 'dashboard' %}" class="px-6 py-3 bg-gray-200 text-text-dark rounded-full font-semibold hover:bg-gray-300 transition-colors">← Back to Dashboard</a>
+        <a href="{% url 'badges' %}" class="px-6 py-3 bg-brand-purple text-white rounded-full font-semibold hover:bg-brand-purple/90 transition-colors">View Badges 🏆</a>
+    </div>
+</div>
+
+<!-- Include Chart.js from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+    // Parse data from Django template
+    const weightData = {{ weight_chart_data|safe }};
+    const activityData = {{ activity_chart_data|safe }};
+    const caloriesData = {{ calories_chart_data|safe }};
+    
+    // ========================================
+    // WEIGHT TREND LINE CHART
+    // ========================================
+    const weightCtx = document.getElementById('weightChart').getContext('2d');
+    const weightChart = new Chart(weightCtx, {
+        type: 'line',
+        data: {
+            labels: weightData.labels,
+            datasets: [{
+                label: 'Weight (kg)',
+                data: weightData.values,
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                borderWidth: 3,
+                tension: 0.3,
+                fill: true,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                pointBackgroundColor: '#007bff',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                },
+                title: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Weight: ' + context.parsed.y.toFixed(2) + ' kg';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toFixed(1) + ' kg';
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Weight (kg)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    },
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            }
+        }
+    });
+    
+    // ========================================
+    // ACTIVITY TYPE PIE CHART
+    // ========================================
+    const activityCtx = document.getElementById('activityChart').getContext('2d');
+    
+    // Generate colors for pie chart
+    const pieColors = [
+        '#007bff', // Blue
+        '#28a745', // Green
+        '#ffc107', // Yellow
+        '#dc3545', // Red
+        '#17a2b8', // Cyan
+        '#6f42c1', // Purple
+        '#fd7e14', // Orange
+        '#20c997', // Teal
+    ];
+    
+    const activityChart = new Chart(activityCtx, {
+        type: 'pie',
+        data: {
+            labels: activityData.labels,
+            datasets: [{
+                data: activityData.values,
+                backgroundColor: pieColors.slice(0, activityData.labels.length),
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'right',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return label + ': ' + value + ' (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // ========================================
+    // CALORIES BURNED BAR CHART
+    // ========================================
+    const caloriesCtx = document.getElementById('caloriesChart').getContext('2d');
+    const caloriesChart = new Chart(caloriesCtx, {
+        type: 'bar',
+        data: {
+            labels: caloriesData.labels,
+            datasets: [{
+                label: 'Calories Burned',
+                data: caloriesData.values,
+                backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                borderColor: '#28a745',
+                borderWidth: 2,
+                borderRadius: 5,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Calories: ' + context.parsed.y;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value + ' cal';
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Calories'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    },
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

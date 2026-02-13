@@ -1,0 +1,148 @@
+{% extends "fitnesstrack/base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h1>{{ title }}</h1>
+    
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="card">
+        <form method="post" class="biometrics-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.weight_kg.id_for_label }}">Weight (kg) *</label>
+                {{ form.weight_kg }}
+                {% if form.weight_kg.errors %}
+                    <div class="error">{{ form.weight_kg.errors }}</div>
+                {% endif %}
+                <small class="help-text">Your current body weight</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.body_fat_percentage.id_for_label }}">Body Fat Percentage (%)</label>
+                {{ form.body_fat_percentage }}
+                {% if form.body_fat_percentage.errors %}
+                    <div class="error">{{ form.body_fat_percentage.errors }}</div>
+                {% endif %}
+                <small class="help-text">Optional - if you track body composition</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.muscle_mass_kg.id_for_label }}">Muscle Mass (kg)</label>
+                {{ form.muscle_mass_kg }}
+                {% if form.muscle_mass_kg.errors %}
+                    <div class="error">{{ form.muscle_mass_kg.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.waist_circumference_cm.id_for_label }}">Waist Circumference (cm)</label>
+                {{ form.waist_circumference_cm }}
+                {% if form.waist_circumference_cm.errors %}
+                    <div class="error">{{ form.waist_circumference_cm.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.notes.id_for_label }}">Notes</label>
+                {{ form.notes }}
+                {% if form.notes.errors %}
+                    <div class="error">{{ form.notes.errors }}</div>
+                {% endif %}
+                <small class="help-text">Any observations or comments</small>
+            </div>
+            
+            <div class="info-box">
+                <strong>📊 What happens when you update?</strong>
+                <ul>
+                    <li>Creates a new entry in your biometrics history</li>
+                    <li>Updates your profile with the current weight</li>
+                    <li>Automatically calculates your BMI</li>
+                    <li>Used for accurate calorie burn calculations</li>
+                </ul>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Biometrics</button>
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+    
+    {% if recent_logs %}
+    <div class="card history-card">
+        <h2>Recent History</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Weight (kg)</th>
+                    <th>Body Fat %</th>
+                    <th>BMI</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in recent_logs %}
+                <tr>
+                    <td>{{ log.date_recorded|date:"M d, Y" }}</td>
+                    <td>{{ log.weight_kg }}</td>
+                    <td>{{ log.body_fat_percentage|default:"--" }}</td>
+                    <td>{{ log.bmi|default:"--" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url 'biometrics_list' %}" class="btn btn-link">View Full History →</a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .form-container { max-width: 700px; margin: 40px auto; padding: 20px; }
+    .card { background: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+    .form-group input, .form-group textarea { 
+        width: 100%; 
+        padding: 10px; 
+        border: 1px solid #ced4da; 
+        border-radius: 4px; 
+        font-size: 1em;
+    }
+    .form-group textarea { min-height: 80px; resize: vertical; }
+    .help-text { display: block; color: #6c757d; font-size: 0.875em; margin-top: 5px; }
+    .error { color: #dc3545; font-size: 0.875em; margin-top: 5px; }
+    .info-box { 
+        background: #d1ecf1; 
+        border-left: 4px solid #0c5460; 
+        padding: 15px; 
+        margin: 20px 0; 
+        border-radius: 4px; 
+    }
+    .info-box strong { color: #0c5460; display: block; margin-bottom: 10px; }
+    .info-box ul { margin: 0; padding-left: 20px; color: #0c5460; }
+    .info-box li { margin: 5px 0; }
+    .form-actions { display: flex; gap: 10px; margin-top: 30px; }
+    .btn { padding: 12px 24px; border-radius: 4px; text-decoration: none; border: none; cursor: pointer; font-size: 1em; }
+    .btn-primary { background: #007bff; color: white; }
+    .btn-primary:hover { background: #0056b3; }
+    .btn-secondary { background: #6c757d; color: white; }
+    .btn-secondary:hover { background: #545b62; }
+    .btn-link { color: #007bff; text-decoration: none; }
+    .table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    .table th, .table td { padding: 12px; text-align: left; border-bottom: 1px solid #dee2e6; }
+    .table th { background: #f8f9fa; font-weight: bold; }
+    .alert { padding: 12px; border-radius: 4px; margin-bottom: 20px; }
+    .alert-success { background: #d4edda; color: #155724; }
+    .alert-error, .alert-danger { background: #f8d7da; color: #721c24; }
+    .alert-warning { background: #fff3cd; color: #856404; }
+    .history-card { margin-top: 30px; }
+</style>
+{% endblock %}

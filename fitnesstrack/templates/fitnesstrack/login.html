@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Fitness Tracker</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #F3F4F6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-md w-full mx-4" style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #e5e7eb;">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-2" style="color: #6366F1;">💪 Fitness Tracker</h1>
+            <p class="text-gray-600">Sign in to your account</p>
+        </div>
+
+        {% if form.errors %}
+        <div class="alert alert-danger mb-6">
+            <strong>Error:</strong> Invalid username or password. Please try again.
+        </div>
+        {% endif %}
+
+        {% if next %}
+            {% if user.is_authenticated %}
+            <div class="alert alert-danger mb-6">
+                <strong>Access Denied:</strong> Your account doesn't have access to this page.
+            </div>
+            {% endif %}
+        {% endif %}
+
+        <form method="post" action="{% url 'login' %}" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label for="id_username" class="block text-sm font-semibold mb-2 text-gray-700">
+                    Username
+                </label>
+                <input 
+                    type="text" 
+                    name="username" 
+                    id="id_username"
+                    class="input-field w-full" 
+                    placeholder="Enter your username"
+                    required
+                    autofocus
+                >
+            </div>
+
+            <div>
+                <label for="id_password" class="block text-sm font-semibold mb-2 text-gray-700">
+                    Password
+                </label>
+                <input 
+                    type="password" 
+                    name="password" 
+                    id="id_password"
+                    class="input-field w-full" 
+                    placeholder="Enter your password"
+                    required
+                >
+            </div>
+
+            <input type="hidden" name="next" value="{{ next }}" />
+
+            <button type="submit" class="w-full" style="background: #6366F1; color: white; padding: 12px 24px; border-radius: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s;">
+                🔐 Sign In
+            </button>
+        </form>
+
+        <div class="mt-6 text-center">
+            <p class="text-gray-600 text-sm">
+                Don't have an account? 
+                <a href="{% url 'register' %}" class="text-brand-purple hover:underline" style="color: #6366F1; font-weight: 600;">Sign Up</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

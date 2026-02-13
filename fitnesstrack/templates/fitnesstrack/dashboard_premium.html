@@ -1,0 +1,918 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Fitness Tracker</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    
+    <!-- Google Fonts: Poppins (Headings) & Inter (Body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3, h4, h5, h6, .font-heading {
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-900">
+    
+    <!-- Floating Glass Sidebar (Desktop) -->
+    <aside class="fixed left-4 top-4 bottom-4 w-64 bg-slate-900/80 backdrop-blur-md border border-slate-700 rounded-2xl shadow-2xl hidden lg:block z-50 overflow-hidden">
+        <div class="flex flex-col h-full p-6">
+            <!-- Logo Area -->
+            <div class="mb-8">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 flex items-center justify-center text-2xl shadow-lg">
+                        💪
+                    </div>
+                    <h1 class="text-2xl font-bold text-slate-100 font-heading">FitTrack</h1>
+                </div>
+                <p class="text-slate-400 text-sm">Your fitness journey</p>
+            </div>
+            
+            <!-- Navigation Links -->
+            <nav class="flex-1 space-y-2 mb-8">
+                <a href="{% url 'dashboard' %}" class="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-emerald-400/20 to-cyan-400/20 border border-emerald-400/30 text-slate-100 rounded-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-400/20">
+                    <span class="text-xl">📊</span>
+                    <span class="font-semibold">Dashboard</span>
+                </a>
+                <a href="{% url 'activity_list' %}" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 rounded-xl transition-all duration-300 hover:-translate-y-1">
+                    <span class="text-xl">🏃</span>
+                    <span class="font-semibold">Workout Log</span>
+                </a>
+                <a href="{% url 'progress_charts' %}" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 rounded-xl transition-all duration-300 hover:-translate-y-1">
+                    <span class="text-xl">📈</span>
+                    <span class="font-semibold">Analytics</span>
+                </a>
+                <a href="{% url 'badges' %}" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 rounded-xl transition-all duration-300 hover:-translate-y-1">
+                    <span class="text-xl">🏆</span>
+                    <span class="font-semibold">Achievements</span>
+                </a>
+                <a href="{% url 'update_profile' %}" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 rounded-xl transition-all duration-300 hover:-translate-y-1">
+                    <span class="text-xl">⚙️</span>
+                    <span class="font-semibold">Settings</span>
+                </a>
+            </nav>
+            
+            <!-- User Profile at Bottom -->
+            <div class="mt-auto pt-6 border-t border-slate-700/50">
+                <div class="flex items-center gap-3 mb-4 p-3 bg-slate-800/50 backdrop-blur rounded-xl">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center text-slate-900 font-bold text-lg shadow-lg">
+                        {{ request.user.username|slice:":1"|upper }}
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-slate-100">{{ request.user.username }}</p>
+                        <p class="text-xs text-slate-400">✨ Premium</p>
+                    </div>
+                </div>
+                <a href="{% url 'logout' %}" class="flex items-center justify-center gap-2 px-4 py-3 bg-slate-800 border border-slate-700 text-slate-300 rounded-xl hover:bg-slate-700 hover:-translate-y-1 transition-all duration-300">
+                    <span>🚪</span>
+                    <span class="font-semibold">Logout</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Mobile Header -->
+    <header class="lg:hidden fixed top-0 left-0 right-0 h-16 bg-slate-900/90 backdrop-blur-md border-b border-slate-700 z-40">
+        <div class="flex items-center justify-between h-full px-4">
+            <button id="mobile-menu-btn" class="text-slate-100 p-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            <h1 class="text-xl font-bold text-slate-100 font-heading">FitTrack</h1>
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center text-slate-900 font-bold shadow-lg">
+                {{ request.user.username|slice:":1"|upper }}
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="lg:ml-72 lg:mr-4 mt-20 lg:mt-4 mb-4 px-4">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Welcome Section -->
+            <div class="mb-8">
+                <h2 class="text-4xl font-bold text-slate-100 font-heading mb-2">Welcome back, {{ request.user.username }}! 👋</h2>
+                <p class="text-slate-400 text-lg">Here's your fitness overview for today</p>
+            </div>
+            
+            <!-- Daily Tip Card -->
+            <div class="mb-8 p-6 bg-gradient-to-r from-emerald-400/10 to-cyan-400/10 backdrop-blur-md border border-emerald-400/30 rounded-2xl shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <div class="flex items-start gap-4">
+                    <div class="text-4xl">💡</div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-slate-100 font-heading mb-2">Daily Tip</h3>
+                        <p class="text-slate-300">{{ daily_tip|default:"Stay hydrated and keep moving! You're doing great." }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Top Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Steps Card -->
+                <div class="p-6 bg-slate-800/50 backdrop-blur-md border border-slate-700 rounded-2xl shadow-xl hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-400/10 transition-all duration-300">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center text-2xl shadow-lg">
+                            👟
+                        </div>
+                        <span class="text-xs font-semibold text-emerald-400 px-3 py-1 bg-emerald-400/10 rounded-full">+12%</span>
+                    </div>
+                    <h3 class="text-3xl font-bold text-slate-100 font-heading mb-1">{{ total_steps|default:"8,432" }}</h3>
+                    <p class="text-slate-400 text-sm">Steps Today</p>
+                    <div class="mt-4 h-1 bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-emerald-400 to-green-500 rounded-full" style="width: 84%"></div>
+                    </div>
+                </div>
+                
+                <!-- Calories Card -->
+                <div class="p-6 bg-slate-800/50 backdrop-blur-md border border-slate-700 rounded-2xl shadow-xl hover:-translate-y-1 hover:shadow-2xl hover:shadow-orange-400/10 transition-all duration-300">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-2xl shadow-lg">
+                            🔥
+                        </div>
+                        <span class="text-xs font-semibold text-orange-400 px-3 py-1 bg-orange-400/10 rounded-full">+8%</span>
+                    </div>
+                    <h3 class="text-3xl font-bold text-slate-100 font-heading mb-1">{{ total_calories|default:"2,340" }}</h3>
+                    <p class="text-slate-400 text-sm">Calories Burned</p>
+                    <div class="mt-4 h-1 bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-orange-400 to-red-500 rounded-full" style="width: 72%"></div>
+                    </div>
+                </div>
+                
+                <!-- Active Time Card -->
+                <div class="p-6 bg-slate-800/50 backdrop-blur-md border border-slate-700 rounded-2xl shadow-xl hover:-translate-y-1 hover:shadow-2xl hover:shadow-cyan-400/10 transition-all duration-300">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-2xl shadow-lg">
+                            ⏱️
+                        </div>
+                        <span class="text-xs font-semibold text-cyan-400 px-3 py-1 bg-cyan-400/10 rounded-full">+15%</span>
+                    </div>
+                    <h3 class="text-3xl font-bold text-slate-100 font-heading mb-1">{{ active_minutes|default:"47" }} min</h3>
+                    <p class="text-slate-400 text-sm">Active Time</p>
+                    <div class="mt-4 h-1 bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" style="width: 65%"></div>
+                    </div>
+                </div>
+                
+                <!-- Water Intake Card -->
+                <div class="p-6 bg-slate-800/50 backdrop-blur-md border border-slate-700 rounded-2xl shadow-xl hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-400/10 transition-all duration-300">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-2xl shadow-lg">
+                            💧
+                        </div>
+                        <span class="text-xs font-semibold text-blue-400 px-3 py-1 bg-blue-400/10 rounded-full">+5%</span>
+                    </div>
+                    <h3 class="text-3xl font-bold text-slate-100 font-heading mb-1">{{ water_intake|default:"6" }}/8</h3>
+                    <p class="text-slate-400 text-sm">Glasses of Water</p>
+                    <div class="mt-4 h-1 bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full" style="width: 75%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Weekly Activity Chart (2/3 width) -->
+                <div class="lg:col-span-2 p-8 bg-slate-800/50 backdrop-blur-md border border-slate-700 rounded-2xl shadow-xl">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-2xl font-bold text-slate-100 font-heading mb-1">Weekly Activity</h3>
+                            <p class="text-slate-400 text-sm">Your workout progress this week</p>
+                        </div>
+                        <button class="px-4 py-2 bg-slate-700 text-slate-300 rounded-xl hover:bg-slate-600 transition-all duration-300">
+                            7 Days
+                        </button>
+                    </div>
+                    <canvas id="weeklyActivityChart" class="w-full" height="250"></canvas>
+                </div>
+                
+                <!-- Recent Workouts (1/3 width) -->
+                <div class="p-8 bg-slate-800/50 backdrop-blur-md border border-slate-700 rounded-2xl shadow-xl">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-slate-100 font-heading">Recent Workouts</h3>
+                        <button id="open-modal-btn" class="p-2 bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-900 rounded-xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="recent-activities-list" class="space-y-3">
+                        {% for activity in recent_activities %}
+                        <div class="p-4 bg-slate-900/50 border border-slate-700 rounded-xl hover:-translate-y-1 transition-all duration-300">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-2xl">
+                                    {% if activity.activity_type == 'Running' %}🏃
+                                    {% elif activity.activity_type == 'Cycling' %}🚴
+                                    {% elif activity.activity_type == 'Swimming' %}🏊
+                                    {% elif activity.activity_type == 'Gym' %}💪
+                                    {% elif activity.activity_type == 'Yoga' %}🧘
+                                    {% else %}⚽
+                                    {% endif %}
+                                </span>
+                                <div class="flex-1">
+                                    <h4 class="text-sm font-semibold text-slate-100">{{ activity.activity_type }}</h4>
+                                    <p class="text-xs text-slate-400">{{ activity.date|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 text-xs text-slate-400">
+                                <span>⏱️ {{ activity.duration }} min</span>
+                                <span>🔥 {{ activity.calories_burned }} cal</span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="p-4 text-center">
+                            <p class="text-slate-400 text-sm mb-3">No workouts yet</p>
+                            <button class="open-modal-trigger px-4 py-2 bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-900 rounded-xl font-semibold hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                                Log Your First Workout
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Weight Trend Chart -->
+            <div class="mb-8 p-8 bg-slate-800/50 backdrop-blur-md border border-slate-700 rounded-2xl shadow-xl">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-100 font-heading mb-1">Weight Trend</h3>
+                        <p class="text-slate-400 text-sm">Track your progress over time</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="px-4 py-2 bg-slate-700 text-slate-300 rounded-xl hover:bg-slate-600 transition-all duration-300">1M</button>
+                        <button class="px-4 py-2 bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-900 font-semibold rounded-xl shadow-lg">3M</button>
+                        <button class="px-4 py-2 bg-slate-700 text-slate-300 rounded-xl hover:bg-slate-600 transition-all duration-300">6M</button>
+                    </div>
+                </div>
+                <canvas id="weightTrendChart" class="w-full" height="250"></canvas>
+            </div>
+            
+            <!-- Leaderboard (Podium Style) -->
+            <div class="mb-8 p-8 bg-slate-800/50 backdrop-blur-md border border-slate-700 rounded-2xl shadow-xl">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-100 font-heading mb-1">🏆 Leaderboard</h3>
+                        <p class="text-slate-400 text-sm">Top performers this week</p>
+                    </div>
+                    <button class="px-4 py-2 bg-slate-700 text-slate-300 rounded-xl hover:bg-slate-600 transition-all duration-300">
+                        This Week
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <!-- Rank 1 - Gold -->
+                    <div class="p-6 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border-2 border-yellow-500/50 rounded-2xl hover:-translate-y-1 hover:shadow-2xl hover:shadow-yellow-500/20 transition-all duration-300">
+                        <div class="flex items-center gap-4">
+                            <div class="relative">
+                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-slate-900 font-bold text-2xl shadow-xl">
+                                    SC
+                                </div>
+                                <div class="absolute -top-2 -right-2 w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-sm font-bold text-slate-900 shadow-lg">
+                                    1
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <h4 class="text-lg font-bold text-slate-100 font-heading">Sarah Chen</h4>
+                                    <div class="w-2 h-2 rounded-full bg-green-400 shadow-lg shadow-green-400/50"></div>
+                                </div>
+                                <div class="flex items-center gap-4 text-sm text-slate-400">
+                                    <span>⚡ 2,450 XP</span>
+                                    <span>👟 12,543 steps</span>
+                                </div>
+                            </div>
+                            <button class="px-6 py-3 bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-900 font-semibold rounded-xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                                👋 Nudge
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Rank 2 - Silver -->
+                    <div class="p-6 bg-gradient-to-r from-slate-400/10 to-gray-400/10 border-2 border-slate-400/50 rounded-2xl hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-400/20 transition-all duration-300">
+                        <div class="flex items-center gap-4">
+                            <div class="relative">
+                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-300 to-gray-400 flex items-center justify-center text-slate-900 font-bold text-2xl shadow-xl">
+                                    MR
+                                </div>
+                                <div class="absolute -top-2 -right-2 w-8 h-8 rounded-lg bg-gradient-to-br from-slate-300 to-gray-400 flex items-center justify-center text-sm font-bold text-slate-900 shadow-lg">
+                                    2
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <h4 class="text-lg font-bold text-slate-100 font-heading">Mike Rodriguez</h4>
+                                    <div class="w-2 h-2 rounded-full bg-green-400 shadow-lg shadow-green-400/50"></div>
+                                </div>
+                                <div class="flex items-center gap-4 text-sm text-slate-400">
+                                    <span>⚡ 2,120 XP</span>
+                                    <span>👟 11,234 steps</span>
+                                </div>
+                            </div>
+                            <button class="px-6 py-3 bg-slate-700 text-slate-300 border border-slate-600 font-semibold rounded-xl hover:bg-slate-600 hover:-translate-y-1 transition-all duration-300">
+                                👋 Nudge
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Rank 3 - Bronze -->
+                    <div class="p-6 bg-gradient-to-r from-orange-600/10 to-amber-700/10 border-2 border-orange-600/50 rounded-2xl hover:-translate-y-1 hover:shadow-2xl hover:shadow-orange-600/20 transition-all duration-300">
+                        <div class="flex items-center gap-4">
+                            <div class="relative">
+                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-slate-900 font-bold text-2xl shadow-xl">
+                                    EP
+                                </div>
+                                <div class="absolute -top-2 -right-2 w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-sm font-bold text-slate-900 shadow-lg">
+                                    3
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <h4 class="text-lg font-bold text-slate-100 font-heading">Emma Patel</h4>
+                                    <div class="w-2 h-2 rounded-full bg-slate-600"></div>
+                                </div>
+                                <div class="flex items-center gap-4 text-sm text-slate-400">
+                                    <span>⚡ 1,980 XP</span>
+                                    <span>👟 10,876 steps</span>
+                                </div>
+                            </div>
+                            <button class="px-6 py-3 bg-slate-700 text-slate-300 border border-slate-600 font-semibold rounded-xl hover:bg-slate-600 hover:-translate-y-1 transition-all duration-300">
+                                👋 Nudge
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Ranks 4-5 -->
+                    <div class="p-6 bg-slate-900/50 border border-slate-700 rounded-2xl hover:-translate-y-1 transition-all duration-300">
+                        <div class="flex items-center gap-4">
+                            <div class="relative">
+                                <div class="w-14 h-14 rounded-xl bg-slate-700 flex items-center justify-center text-slate-300 font-bold text-xl">
+                                    JK
+                                </div>
+                                <div class="absolute -top-1 -right-1 w-6 h-6 rounded-lg bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-300">
+                                    4
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-base font-semibold text-slate-200 font-heading">James Kim</h4>
+                                <div class="flex items-center gap-3 text-xs text-slate-400">
+                                    <span>⚡ 1,750 XP</span>
+                                    <span>👟 9,543 steps</span>
+                                </div>
+                            </div>
+                            <button class="px-4 py-2 bg-slate-700 text-slate-400 border border-slate-600 text-sm font-semibold rounded-lg hover:bg-slate-600 transition-all duration-300">
+                                👋 Nudge
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 bg-slate-900/50 border border-slate-700 rounded-2xl hover:-translate-y-1 transition-all duration-300">
+                        <div class="flex items-center gap-4">
+                            <div class="relative">
+                                <div class="w-14 h-14 rounded-xl bg-slate-700 flex items-center justify-center text-slate-300 font-bold text-xl">
+                                    LW
+                                </div>
+                                <div class="absolute -top-1 -right-1 w-6 h-6 rounded-lg bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-300">
+                                    5
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-base font-semibold text-slate-200 font-heading">Lisa Wang</h4>
+                                <div class="flex items-center gap-3 text-xs text-slate-400">
+                                    <span>⚡ 1,620 XP</span>
+                                    <span>👟 8,976 steps</span>
+                                </div>
+                            </div>
+                            <button class="px-4 py-2 bg-slate-700 text-slate-400 border border-slate-600 text-sm font-semibold rounded-lg hover:bg-slate-600 transition-all duration-300">
+                                👋 Nudge
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Floating Add Button -->
+    <button id="floating-add-btn" class="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-900 rounded-2xl shadow-2xl hover:scale-110 hover:shadow-emerald-400/50 transition-all duration-300 flex items-center justify-center text-3xl font-bold z-50">
+        +
+    </button>
+    
+    <!-- Log Workout Modal -->
+    <div id="workout-modal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-slate-800 border-b border-slate-700 p-6 flex items-center justify-between z-10">
+                <div>
+                    <h3 class="text-2xl font-bold text-slate-100 font-heading">Log Workout</h3>
+                    <p class="text-slate-400 text-sm mt-1">Track your fitness activity</p>
+                </div>
+                <button id="close-modal-btn" class="w-10 h-10 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl transition-all duration-300 flex items-center justify-center">
+                    ✕
+                </button>
+            </div>
+            
+            <div class="p-8">
+                <!-- Error Alert (Hidden by default) -->
+                <div id="modal-error" class="hidden mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-xl">
+                    <p class="text-red-400 text-sm font-semibold"></p>
+                </div>
+                
+                <!-- Activity Selector -->
+                <div class="mb-8">
+                    <label class="block text-slate-300 font-semibold mb-4">Select Activity</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="activity-selector">
+                        <button class="activity-card p-6 bg-slate-900/50 border-2 border-slate-700 hover:border-emerald-400 rounded-2xl transition-all duration-300 hover:-translate-y-1" data-activity="Running">
+                            <div class="text-4xl mb-3">🏃</div>
+                            <p class="text-slate-300 font-semibold">Running</p>
+                        </button>
+                        <button class="activity-card p-6 bg-slate-900/50 border-2 border-slate-700 hover:border-emerald-400 rounded-2xl transition-all duration-300 hover:-translate-y-1" data-activity="Cycling">
+                            <div class="text-4xl mb-3">🚴</div>
+                            <p class="text-slate-300 font-semibold">Cycling</p>
+                        </button>
+                        <button class="activity-card p-6 bg-slate-900/50 border-2 border-slate-700 hover:border-emerald-400 rounded-2xl transition-all duration-300 hover:-translate-y-1" data-activity="Gym">
+                            <div class="text-4xl mb-3">💪</div>
+                            <p class="text-slate-300 font-semibold">Gym</p>
+                        </button>
+                        <button class="activity-card p-6 bg-slate-900/50 border-2 border-slate-700 hover:border-emerald-400 rounded-2xl transition-all duration-300 hover:-translate-y-1" data-activity="Swimming">
+                            <div class="text-4xl mb-3">🏊</div>
+                            <p class="text-slate-300 font-semibold">Swimming</p>
+                        </button>
+                        <button class="activity-card p-6 bg-slate-900/50 border-2 border-slate-700 hover:border-emerald-400 rounded-2xl transition-all duration-300 hover:-translate-y-1" data-activity="Yoga">
+                            <div class="text-4xl mb-3">🧘</div>
+                            <p class="text-slate-300 font-semibold">Yoga</p>
+                        </button>
+                        <button class="activity-card p-6 bg-slate-900/50 border-2 border-slate-700 hover:border-emerald-400 rounded-2xl transition-all duration-300 hover:-translate-y-1" data-activity="Sports">
+                            <div class="text-4xl mb-3">⚽</div>
+                            <p class="text-slate-300 font-semibold">Sports</p>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Duration Slider -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <label class="text-slate-300 font-semibold">Duration</label>
+                        <span id="duration-display" class="text-2xl font-bold text-emerald-400 font-heading">30 min</span>
+                    </div>
+                    <input type="range" id="duration-slider" min="0" max="120" value="30" step="5" class="w-full h-2 bg-slate-700 rounded-full appearance-none cursor-pointer slider-thumb">
+                    <div class="flex justify-between text-xs text-slate-500 mt-2">
+                        <span>0 min</span>
+                        <span>60 min</span>
+                        <span>120 min</span>
+                    </div>
+                </div>
+                
+                <!-- Intensity Selector -->
+                <div class="mb-8">
+                    <label class="block text-slate-300 font-semibold mb-4">Intensity</label>
+                    <div class="flex gap-3" id="intensity-selector">
+                        <button class="intensity-btn flex-1 px-6 py-3 bg-slate-900/50 border-2 border-slate-700 hover:border-emerald-400 text-slate-300 rounded-xl font-semibold transition-all duration-300" data-intensity="Low">
+                            Low
+                        </button>
+                        <button class="intensity-btn flex-1 px-6 py-3 bg-slate-900/50 border-2 border-slate-700 hover:border-emerald-400 text-slate-300 rounded-xl font-semibold transition-all duration-300" data-intensity="Medium">
+                            Medium
+                        </button>
+                        <button class="intensity-btn flex-1 px-6 py-3 bg-slate-900/50 border-2 border-slate-700 hover:border-emerald-400 text-slate-300 rounded-xl font-semibold transition-all duration-300" data-intensity="High">
+                            High
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Submit Button -->
+                <button id="submit-workout-btn" class="w-full py-4 bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-900 font-bold text-lg rounded-xl hover:shadow-2xl hover:shadow-emerald-400/50 hover:-translate-y-1 transition-all duration-300">
+                    Log Workout
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Success Notification (Hidden by default) -->
+    <div id="success-notification" class="hidden fixed top-6 right-6 p-6 bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-900 rounded-2xl shadow-2xl z-50 max-w-sm">
+        <div class="flex items-center gap-3">
+            <div class="text-3xl">✅</div>
+            <div>
+                <p class="font-bold text-lg font-heading">Success!</p>
+                <p class="text-sm">Workout logged successfully</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Modal Functionality
+        const modal = document.getElementById('workout-modal');
+        const openModalBtn = document.getElementById('open-modal-btn');
+        const floatingAddBtn = document.getElementById('floating-add-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const submitBtn = document.getElementById('submit-workout-btn');
+        
+        // Open modal handlers
+        [openModalBtn, floatingAddBtn].forEach(btn => {
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                });
+            }
+        });
+        
+        // Close modal handler
+        closeModalBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            resetForm();
+        });
+        
+        // Close on backdrop click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                resetForm();
+            }
+        });
+        
+        // Activity Selection
+        let selectedActivity = null;
+        const activityCards = document.querySelectorAll('.activity-card');
+        activityCards.forEach(card => {
+            card.addEventListener('click', () => {
+                activityCards.forEach(c => c.classList.remove('border-emerald-400', 'bg-emerald-400/10'));
+                card.classList.add('border-emerald-400', 'bg-emerald-400/10');
+                selectedActivity = card.dataset.activity;
+            });
+        });
+        
+        // Duration Slider
+        const durationSlider = document.getElementById('duration-slider');
+        const durationDisplay = document.getElementById('duration-display');
+        durationSlider.addEventListener('input', (e) => {
+            durationDisplay.textContent = `${e.target.value} min`;
+        });
+        
+        // Intensity Selection
+        let selectedIntensity = null;
+        const intensityBtns = document.querySelectorAll('.intensity-btn');
+        intensityBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                intensityBtns.forEach(b => b.classList.remove('border-emerald-400', 'bg-emerald-400/10', 'text-emerald-400'));
+                btn.classList.add('border-emerald-400', 'bg-emerald-400/10', 'text-emerald-400');
+                selectedIntensity = btn.dataset.intensity;
+            });
+        });
+        
+        // Get CSRF Token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Add Activity to Recent List
+        function addActivityToList(activity) {
+            const list = document.getElementById('recent-activities-list');
+            const activityIcons = {
+                'Running': '🏃',
+                'Cycling': '🚴',
+                'Swimming': '🏊',
+                'Gym': '💪',
+                'Yoga': '🧘',
+                'Sports': '⚽'
+            };
+            
+            const activityHTML = `
+                <div class="p-4 bg-slate-900/50 border border-slate-700 rounded-xl hover:-translate-y-1 transition-all duration-300">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="text-2xl">${activityIcons[activity.activity_type] || '⚽'}</span>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-semibold text-slate-100">${activity.activity_type}</h4>
+                            <p class="text-xs text-slate-400">Just now</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs text-slate-400">
+                        <span>⏱️ ${activity.duration} min</span>
+                        <span>🔥 ${activity.calories_burned} cal</span>
+                    </div>
+                </div>
+            `;
+            
+            // Remove "No workouts yet" message if present
+            const emptyState = list.querySelector('.text-center');
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            // Add new activity at the top
+            list.insertAdjacentHTML('afterbegin', activityHTML);
+            
+            // Keep only 3 most recent
+            while (list.children.length > 3) {
+                list.removeChild(list.lastChild);
+            }
+        }
+        
+        // Show Modal Error
+        function showModalError(message) {
+            const errorDiv = document.getElementById('modal-error');
+            errorDiv.querySelector('p').textContent = message;
+            errorDiv.classList.remove('hidden');
+            setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+        }
+        
+        // Show Success Notification
+        function showSuccessNotification() {
+            const notification = document.getElementById('success-notification');
+            notification.classList.remove('hidden');
+            setTimeout(() => notification.classList.add('hidden'), 3000);
+        }
+        
+        // Reset Form
+        function resetForm() {
+            selectedActivity = null;
+            selectedIntensity = null;
+            activityCards.forEach(c => c.classList.remove('border-emerald-400', 'bg-emerald-400/10'));
+            intensityBtns.forEach(b => b.classList.remove('border-emerald-400', 'bg-emerald-400/10', 'text-emerald-400'));
+            durationSlider.value = 30;
+            durationDisplay.textContent = '30 min';
+            document.getElementById('modal-error').classList.add('hidden');
+        }
+        
+        // Submit Workout
+        submitBtn.addEventListener('click', async () => {
+            // Validation
+            if (!selectedActivity) {
+                showModalError('Please select an activity type');
+                return;
+            }
+            if (!selectedIntensity) {
+                showModalError('Please select intensity level');
+                return;
+            }
+            
+            const duration = parseInt(durationSlider.value);
+            if (duration === 0) {
+                showModalError('Duration must be greater than 0');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Logging...';
+            
+            try {
+                const csrftoken = getCookie('csrftoken');
+                const response = await fetch('/api/log-activity/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({
+                        activity_type: selectedActivity,
+                        duration: duration,
+                        intensity: selectedIntensity
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // Close modal
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    
+                    // Reset form
+                    resetForm();
+                    
+                    // Add to recent activities
+                    addActivityToList(data.activity);
+                    
+                    // Show success notification
+                    showSuccessNotification();
+                } else {
+                    showModalError(data.error || 'Failed to log workout');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showModalError('Network error. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Log Workout';
+            }
+        });
+        
+        // Weekly Activity Chart
+        const weeklyCtx = document.getElementById('weeklyActivityChart').getContext('2d');
+        new Chart(weeklyCtx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Calories',
+                    data: [420, 380, 520, 450, 490, 380, 520],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }, {
+                    label: 'Duration (min)',
+                    data: [45, 38, 52, 42, 48, 35, 55],
+                    borderColor: '#06b6d4',
+                    backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#06b6d4',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#cbd5e1',
+                            font: {
+                                family: 'Inter',
+                                size: 12
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(71, 85, 105, 0.3)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#94a3b8',
+                            font: {
+                                family: 'Inter'
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#94a3b8',
+                            font: {
+                                family: 'Inter'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Weight Trend Chart
+        const weightCtx = document.getElementById('weightTrendChart').getContext('2d');
+        new Chart(weightCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Weight (kg)',
+                    data: [82, 80, 79, 78, 76, 75],
+                    borderColor: '#06b6d4',
+                    backgroundColor: (context) => {
+                        const ctx = context.chart.ctx;
+                        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                        gradient.addColorStop(0, 'rgba(6, 182, 212, 0.3)');
+                        gradient.addColorStop(1, 'rgba(6, 182, 212, 0)');
+                        return gradient;
+                    },
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#06b6d4',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 3,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#cbd5e1',
+                            font: {
+                                family: 'Inter',
+                                size: 12
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: {
+                            color: 'rgba(71, 85, 105, 0.3)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#94a3b8',
+                            font: {
+                                family: 'Inter'
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#94a3b8',
+                            font: {
+                                family: 'Inter'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', () => {
+                // Toggle mobile menu (implement as needed)
+                alert('Mobile menu - to be implemented');
+            });
+        }
+        
+        // Custom Slider Styling
+        const style = document.createElement('style');
+        style.textContent = `
+            .slider-thumb::-webkit-slider-thumb {
+                appearance: none;
+                width: 20px;
+                height: 20px;
+                background: linear-gradient(to right, #10b981, #06b6d4);
+                border-radius: 50%;
+                cursor: pointer;
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+            }
+            .slider-thumb::-moz-range-thumb {
+                width: 20px;
+                height: 20px;
+                background: linear-gradient(to right, #10b981, #06b6d4);
+                border-radius: 50%;
+                cursor: pointer;
+                border: none;
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

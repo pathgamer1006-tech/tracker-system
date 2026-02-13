@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Fitness Tracker</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #F3F4F6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-md w-full mx-4" style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #e5e7eb;">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-2" style="color: #6366F1;">💪 Fitness Tracker</h1>
+            <p class="text-gray-600">Create your account</p>
+        </div>
+
+        {% if form.errors %}
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl">
+            <strong class="text-red-600">Error:</strong>
+            <ul class="mt-2 text-sm text-red-600">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ field|title }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'register' %}" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label for="id_username" class="block text-sm font-semibold mb-2 text-gray-700">
+                    Username
+                </label>
+                <input 
+                    type="text" 
+                    name="username" 
+                    id="id_username"
+                    class="form-control w-full" 
+                    placeholder="Choose a username"
+                    required
+                    autofocus
+                    value="{{ form.username.value|default:'' }}"
+                >
+            </div>
+
+            <div>
+                <label for="id_email" class="block text-sm font-semibold mb-2 text-gray-700">
+                    Email
+                </label>
+                <input 
+                    type="email" 
+                    name="email" 
+                    id="id_email"
+                    class="form-control w-full" 
+                    placeholder="your@email.com"
+                    required
+                    value="{{ form.email.value|default:'' }}"
+                >
+            </div>
+
+            <div>
+                <label for="id_password1" class="block text-sm font-semibold mb-2 text-gray-700">
+                    Password
+                </label>
+                <input 
+                    type="password" 
+                    name="password1" 
+                    id="id_password1"
+                    class="form-control w-full" 
+                    placeholder="Create a password"
+                    required
+                >
+                <small class="block text-gray-500 text-xs mt-1">At least 8 characters</small>
+            </div>
+
+            <div>
+                <label for="id_password2" class="block text-sm font-semibold mb-2 text-gray-700">
+                    Confirm Password
+                </label>
+                <input 
+                    type="password" 
+                    name="password2" 
+                    id="id_password2"
+                    class="form-control w-full" 
+                    placeholder="Confirm your password"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="w-full" style="background: #6366F1; color: white; padding: 12px 24px; border-radius: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s;">
+                🚀 Create Account
+            </button>
+        </form>
+
+        <div class="mt-6 text-center">
+            <p class="text-gray-600 text-sm">
+                Already have an account? 
+                <a href="{% url 'login' %}" class="text-brand-purple hover:underline" style="color: #6366F1; font-weight: 600;">Sign In</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

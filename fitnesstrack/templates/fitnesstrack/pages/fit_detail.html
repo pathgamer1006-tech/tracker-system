@@ -1,0 +1,9 @@
+{% extends 'fitnesstrack/base.html' %}
+
+{% block content %}
+<h1>Fitness Item Details</h1>
+<p><strong>ID:</strong> {{ item.id }}</p>
+<p><strong>Name:</strong> {{ item.name }}</p>
+<p><strong>Category:</strong> {{ item.category }}</p>
+<a href="{% url 'fit_list' %}" class="btn btn-secondary">Back</a>
+{% endblock %}

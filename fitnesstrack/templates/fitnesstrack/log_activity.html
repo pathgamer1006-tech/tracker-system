@@ -1,0 +1,74 @@
+{% extends "fitnesstrack/base_new.html" %}
+
+{% block title %}Log Activity - Fitness Tracker{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8" style="overflow: hidden;">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-text-dark mb-2">{{ title }}</h1>
+        <p class="text-text-light">Track your workout and fitness activities</p>
+    </div>
+    
+    {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+                <div class="p-4 rounded-2xl mb-3 {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% elif message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% elif message.tags == 'warning' %}bg-yellow-50 text-yellow-800 border border-yellow-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; overflow: hidden;">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label for="{{ form.activity_type.id_for_label }}" class="block text-sm font-semibold text-text-dark mb-2">Activity Type *</label>
+                {{ form.activity_type }}
+                {% if form.activity_type.errors %}
+                    <div class="text-red-600 text-sm mt-1">{{ form.activity_type.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div>
+                <label for="{{ form.duration_minutes.id_for_label }}" class="block text-sm font-semibold text-text-dark mb-2">Duration (minutes) *</label>
+                {{ form.duration_minutes }}
+                {% if form.duration_minutes.errors %}
+                    <div class="text-red-600 text-sm mt-1">{{ form.duration_minutes.errors }}</div>
+                {% endif %}
+                <small class="block text-text-light text-xs mt-1">How long did you exercise?</small>
+            </div>
+            
+            <div>
+                <label for="{{ form.distance_km.id_for_label }}" class="block text-sm font-semibold text-text-dark mb-2">Distance (km)</label>
+                {{ form.distance_km }}
+                {% if form.distance_km.errors %}
+                    <div class="text-red-600 text-sm mt-1">{{ form.distance_km.errors }}</div>
+                {% endif %}
+                <small class="block text-text-light text-xs mt-1">Optional - for running, cycling, etc.</small>
+            </div>
+            
+            <div>
+                <label for="{{ form.notes.id_for_label }}" class="block text-sm font-semibold text-text-dark mb-2">Notes</label>
+                {{ form.notes }}
+                {% if form.notes.errors %}
+                    <div class="text-red-600 text-sm mt-1">{{ form.notes.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="bg-blue-50 border-l-4 border-brand-blue p-4 rounded-lg">
+                <strong class="text-brand-blue block mb-2">ℹ️ Calories will be calculated automatically</strong>
+                <p class="text-brand-blue text-sm">Based on your weight and the activity type, we'll calculate the estimated calories burned.</p>
+            </div>
+            
+            <div class="flex gap-4 pt-4">
+                <button type="submit" class="px-8 py-3 bg-brand-purple text-white rounded-full font-semibold hover:bg-brand-purple/90 transition-colors">Save Activity</button>
+                <a href="{% url 'dashboard' %}" class="px-8 py-3 bg-gray-200 text-text-dark rounded-full font-semibold hover:bg-gray-300 transition-colors">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

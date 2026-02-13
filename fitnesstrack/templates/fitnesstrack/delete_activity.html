@@ -1,0 +1,47 @@
+{% extends "fitnesstrack/base.html" %}
+
+{% block content %}
+<div class="delete-container">
+    <div class="card">
+        <h1>Confirm Delete</h1>
+        
+        <div class="warning-box">
+            <h2>⚠️ Are you sure?</h2>
+            <p>You are about to delete this activity:</p>
+            
+            <div class="activity-info">
+                <p><strong>Activity:</strong> {{ activity.get_activity_type_display }}</p>
+                <p><strong>Date:</strong> {{ activity.date_created|date:"F d, Y - H:i" }}</p>
+                <p><strong>Duration:</strong> {{ activity.duration_minutes }} minutes</p>
+                <p><strong>Calories:</strong> {{ activity.calories_burned }} cal</p>
+            </div>
+            
+            <p class="warning-text">This action cannot be undone!</p>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="actions">
+                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .delete-container { max-width: 600px; margin: 40px auto; padding: 20px; }
+    .card { background: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .warning-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 20px 0; border-radius: 4px; }
+    .warning-box h2 { color: #856404; margin-top: 0; }
+    .activity-info { background: white; padding: 15px; border-radius: 4px; margin: 15px 0; }
+    .activity-info p { margin: 8px 0; }
+    .warning-text { color: #dc3545; font-weight: bold; margin-top: 15px; }
+    .actions { display: flex; gap: 10px; margin-top: 30px; }
+    .btn { padding: 12px 24px; border-radius: 4px; text-decoration: none; border: none; cursor: pointer; font-size: 1em; }
+    .btn-danger { background: #dc3545; color: white; }
+    .btn-danger:hover { background: #c82333; }
+    .btn-secondary { background: #6c757d; color: white; }
+    .btn-secondary:hover { background: #545b62; }
+</style>
+{% endblock %}

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker - Tailwind Demo</title>
+    
+    <!-- Tailwind CSS Output -->
+    <link rel="stylesheet" href="../css/output.css">
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="min-h-screen p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="mb-12">
+            <h1 class="text-5xl font-bold text-neon-glow mb-4">
+                💪 Fitness Tracker
+            </h1>
+            <p class="text-gray-400 text-lg">
+                Your personalized fitness journey dashboard with neon-dark theme
+            </p>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <!-- Card 1 -->
+            <div class="card hover:shadow-neon-green transition-all duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-gray-400">Today's Steps</span>
+                    <span class="text-3xl">🚶</span>
+                </div>
+                <p class="text-4xl font-bold text-neon-glow">8,547</p>
+                <p class="text-sm text-gray-500 mt-2">Goal: 10,000 steps</p>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="card hover:shadow-neon-blue transition-all duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-gray-400">Calories Burned</span>
+                    <span class="text-3xl">🔥</span>
+                </div>
+                <p class="text-4xl font-bold text-blue-glow">542</p>
+                <p class="text-sm text-gray-500 mt-2">+15% from yesterday</p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="card hover:shadow-neon-green transition-all duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-gray-400">Water Intake</span>
+                    <span class="text-3xl">💧</span>
+                </div>
+                <p class="text-4xl font-bold text-neon-glow">2.1L</p>
+                <p class="text-sm text-gray-500 mt-2">Goal: 2.5L</p>
+            </div>
+        </div>
+
+        <!-- Buttons Section -->
+        <div class="card mb-12">
+            <h2 class="text-2xl font-bold mb-6">Quick Actions</h2>
+            <div class="flex flex-wrap gap-4">
+                <button class="btn-primary">
+                    ✅ Log Activity
+                </button>
+                <button class="btn-secondary">
+                    📊 View Progress
+                </button>
+                <button class="btn-danger">
+                    ❌ Delete Record
+                </button>
+            </div>
+        </div>
+
+        <!-- Form Example -->
+        <div class="card mb-12">
+            <h2 class="text-2xl font-bold mb-6">Log New Activity</h2>
+            <form class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-2 text-gray-300">
+                        Activity Type
+                    </label>
+                    <input 
+                        type="text" 
+                        class="input-field w-full" 
+                        placeholder="e.g., Running, Cycling, Yoga"
+                    >
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-gray-300">
+                            Duration (minutes)
+                        </label>
+                        <input 
+                            type="number" 
+                            class="input-field w-full" 
+                            placeholder="30"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-gray-300">
+                            Calories Burned
+                        </label>
+                        <input 
+                            type="number" 
+                            class="input-field w-full" 
+                            placeholder="250"
+                        >
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary w-full md:w-auto">
+                    💾 Save Activity
+                </button>
+            </form>
+        </div>
+
+        <!-- Alerts Example -->
+        <div class="space-y-4 mb-12">
+            <div class="alert alert-success">
+                <strong class="text-neon-glow">Success!</strong> Your activity has been logged successfully.
+            </div>
+            
+            <div class="alert alert-info">
+                <strong class="text-blue-glow">Info:</strong> You're 20% closer to your weekly goal!
+            </div>
+            
+            <div class="alert alert-danger">
+                <strong class="text-danger-red">Alert!</strong> You haven't logged any water intake today.
+            </div>
+        </div>
+
+        <!-- Gradient Background Example -->
+        <div class="gradient-neon rounded-xl p-8 text-center mb-12">
+            <h2 class="text-4xl font-bold text-bg-dark mb-4">
+                🏆 Achievement Unlocked!
+            </h2>
+            <p class="text-bg-dark text-lg font-semibold">
+                You've completed 30 days in a row!
+            </p>
+        </div>
+
+        <!-- Data Visualization Card -->
+        <div class="card">
+            <h2 class="text-2xl font-bold mb-6">Weekly Progress</h2>
+            <div class="space-y-4">
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-400">Monday</span>
+                        <span class="text-neon-glow font-bold">450 cal</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-3">
+                        <div class="gradient-neon h-3 rounded-full" style="width: 75%"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-400">Tuesday</span>
+                        <span class="text-neon-glow font-bold">620 cal</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-3">
+                        <div class="gradient-neon h-3 rounded-full" style="width: 95%"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-400">Wednesday</span>
+                        <span class="text-neon-glow font-bold">380 cal</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-3">
+                        <div class="gradient-neon h-3 rounded-full" style="width: 60%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-500">
+            <p>Built with Tailwind CSS v4 + Custom Neon-Dark Theme</p>
+        </footer>
+    </div>
+</body>
+</html>
