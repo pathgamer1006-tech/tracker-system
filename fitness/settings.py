@@ -88,15 +88,20 @@ WSGI_APPLICATION = 'fitness.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-if config('USE_POSTGRES', default=False, cast=bool):
+# Use PostgreSQL in production if DATABASE_URL is set, otherwise use SQLite
+DATABASE_URL = config('DATABASE_URL', default=None)
+
+if DATABASE_URL:
     import dj_database_url
     DATABASES = {
         'default': dj_database_url.config(
-            default=config('DATABASE_URL', default='sqlite:///db.sqlite3'),
-            conn_max_age=600
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
         )
     }
 else:
+    # Development: use SQLite
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
